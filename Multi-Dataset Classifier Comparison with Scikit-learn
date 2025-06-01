@@ -1,0 +1,88 @@
+from sklearn.datasets import load_iris, load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+def evaluate_model(model, X_train, X_test, y_train, y_test):
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    print(f"Model: {model.__class__.__name__}")
+    print(f"Accuracy: {acc:.4f}")
+    print(classification_report(y_test, y_pred))
+    print("-" * 50)
+    return acc
+# Load Iris dataset
+iris = load_iris()
+X_iris, y_iris = iris.data, iris.target
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris, test_size=0.3, random_state=42)
+
+# Standardize features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Define models
+models = [LogisticRegression(max_iter=200), RandomForestClassifier(), SVC()]
+
+print("\n🔹 Iris Dataset")
+# Evaluate models
+iris_results = [evaluate_model(m, X_train_scaled, X_test_scaled, y_train, y_test) for m in models]
+# Load Titanic dataset
+titanic = sns.load_dataset("titanic").dropna(subset=["age", "embarked", "sex"])
+titanic["sex"] = titanic["sex"].map({"male": 0, "female": 1})
+titanic["embarked"] = titanic["embarked"].astype("category").cat.codes
+
+# Features and target
+features = ["pclass", "sex", "age", "sibsp", "parch", "fare", "embarked"]
+X_titanic = titanic[features]
+y_titanic = titanic["survived"]
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X_titanic, y_titanic, test_size=0.3, random_state=42)
+
+# Standardize features
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("\n🔹 Titanic Dataset")
+# Evaluate models
+titanic_results = [evaluate_model(m, X_train_scaled, X_test_scaled, y_train, y_test) for m in models]
+# Load Breast Cancer dataset
+cancer = load_breast_cancer()
+X_cancer, y_cancer = cancer.data, cancer.target
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X_cancer, y_cancer, test_size=0.3, random_state=42)
+
+# Standardize features
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("\n🔹 Breast Cancer Dataset")
+# Evaluate models
+cancer_results = [evaluate_model(m, X_train_scaled, X_test_scaled, y_train, y_test) for m in models]
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
+# Plot confusion matrix for each model
+def plot_confusion_matrix(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=["Pred: 0", "Pred: 1"], yticklabels=["True: 0", "True: 1"])
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title(f'Confusion Matrix - {model.__class__.__name__}')
+    plt.show()
+
+# Example for Titanic model:
+plot_confusion_matrix(models[0], X_test_scaled, y_test)
+give the extended description of this code for github
