@@ -1,0 +1,41 @@
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, accuracy_score
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = (iris.target != 0).astype(int)  # Convert to binary (0 vs not-0)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+
+# Feature scaling (important for SVM & KNN)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+y_pred_knn = knn.predict(X_test)
+
+print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
+print(classification_report(y_test, y_pred_knn))
+from sklearn.svm import SVC
+
+svm = SVC(kernel='linear')  # You can try 'rbf', 'poly', etc.
+svm.fit(X_train, y_train)
+y_pred_svm = svm.predict(X_test)
+
+print("SVM Accuracy:", accuracy_score(y_test, y_pred_svm))
+print(classification_report(y_test, y_pred_svm))
+from sklearn.linear_model import LogisticRegression
+
+logreg = LogisticRegression()
+logreg.fit(X_train, y_train)
+y_pred_logreg = logreg.predict(X_test)
+
+print("Logistic Regression Accuracy:", accuracy_score(y_test, y_pred_logreg))
+print(classification_report(y_test, y_pred_logreg))
